@@ -1,0 +1,4 @@
+[
+ {"name": "Wikidata: items with a World Heritage Site ID (P757), their coordinates, labels, countries, inscription year and criteria", "owner": "Wikidata contributors", "url": "https://query.wikidata.org/", "licence": "https://creativecommons.org/publicdomain/zero/1.0/", "files": ["sites.parquet", "sites.pmtiles"], "used_by": "bake.py"},
+ {"name": "OpenStreetMap: ways and relations tagged heritage:operator=whc, via the Overpass API", "owner": "OpenStreetMap contributors", "url": "https://www.openstreetmap.org/copyright", "licence": "https://opendatacommons.org/licenses/odbl/1-0/", "files": ["areas.parquet", "areas.pmtiles"], "used_by": "bake.py"}
+]

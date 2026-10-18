@@ -1,0 +1,74 @@
+# Bake and publish to Hugging Face (bake.py, publish.py), weekly: Wikidata and OpenStreetMap change daily, weekly is enough for a map.
+# Each run commits status/last-run.json: GitHub turns schedules off after 60 days with no commits.
+name: bake
+on:
+  schedule:
+    - cron: '0 22 * * 4'           # Thursdays 22:00 UTC
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Publish even if the publish gate finds a count drop (a real drop, checked by hand)'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: bake
+  cancel-in-progress: false
+jobs:
+  bake:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      PIPELINE_DATA: ${{ github.workspace }}/data
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97   # v7.0.0
+        with:
+          python-version: '3.14'
+          cache: pip
+      - run: pip install -r requirements.txt && sudo apt-get update -q
+      # tippecanoe 2.79.0 from source: apt's 2.49 drops most buildings and never extends past z13 (probe 2026-10-10:
+      # 5,295 features at z13 for 4,076,035 rows); 2.79 keeps every building at z14 (local Manhattan test).
+      - id: tip
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830   # v4.3.0
+        with:
+          path: /opt/tippecanoe
+          key: tippecanoe-2.79.0-ubuntu-24.04
+      - if: steps.tip.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install -y -q libsqlite3-dev zlib1g-dev
+          git clone -q https://github.com/felt/tippecanoe /tmp/tip && git -C /tmp/tip checkout -q 68ab8dcc229f95b8b25877697d5e8d66783af503
+          make -C /tmp/tip -j"$(nproc)" PREFIX=/opt/tippecanoe && sudo make -C /tmp/tip install PREFIX=/opt/tippecanoe
+      - run: echo /opt/tippecanoe/bin >> "$GITHUB_PATH"
+      # downloads kept between runs (restore and save are split so the cache is saved even when publish fails)
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9   # v6.1.0
+        with:
+          path: data/cache
+          key: cache-${{ github.run_id }}
+          restore-keys: cache-
+      - name: bake
+        run: python bake.py
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9   # v6.1.0
+        if: always()
+        with:
+          path: data/cache
+          key: cache-${{ github.run_id }}
+      - name: publish
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          PUBLISH_FORCE: ${{ inputs.force && '1' || '0' }}
+        run: set -o pipefail; mkdir -p status && python publish.py | tee status/last-run.json   # git keeps no empty folder: mkdir first
+      # Kaggle mirror of everything published (Helen's account). Its own step, allowed to fail: never blocks Hugging Face.
+      - name: mirror to Kaggle
+        continue-on-error: true
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: python kaggle_mirror.py
+      - name: keep-alive commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add status/last-run.json
+          git commit -m "bake $(date -u +%F)" || exit 0
+          git pull --rebase -q && git push   # main may have moved during the run

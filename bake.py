@@ -213,8 +213,12 @@ def main():
                    os.path.join(tmp, 'sites.geojsonl'))
     counts['sites_tiles_deepest_zoom'] = tiles(os.path.join(tmp, 'sites.geojsonl'), o('sites.pmtiles'), 'sites', SITES_MAXZOOM)
 
-    A = areas(tmp); kept = [a for a in A if a['geom'] is not None]
-    counts['areas'] = len(kept); counts['areas_osm_elements'] = len(A)
+    A = areas(tmp)
+    # Helen, 2026-10-19: a route or network only with a World Heritage ID (ref:whc). OSM tags whole networks (the Way of St
+    # James across France) where UNESCO lists sections; waterways stay as they are.
+    route = lambda a: a['type'] in ('route', 'superroute', 'network') and not a['ref_whc']
+    kept = [a for a in A if a['geom'] is not None and not route(a)]
+    counts['areas'] = len(kept); counts['areas_osm_elements'] = len(A); counts['areas_routes_without_whc_id_dropped'] = sum(map(route, A))
     counts['areas_polygons'] = sum(a['geom'].geom_type in ('Polygon', 'MultiPolygon') for a in kept)
     with open(os.path.join(tmp, 'areas.geojsonl'), 'w') as f:
         for a in kept:

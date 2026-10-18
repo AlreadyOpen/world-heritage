@@ -22,7 +22,9 @@ separate files and never merged.
 | `areas.parquet` | ODbL 1.0 (© OpenStreetMap contributors) | GeoParquet: every OpenStreetMap way and relation tagged `heritage:operator=whc`, with `id` (`way/…` or `relation/…`), `osm` (link) and the tags `name`, `name:en`, `name:fr`, `ref:whc`, `whc:criteria`, `whc:inscription_date`, `protect_class`, `protection_title`, `wikidata`, `wikipedia`, `boundary`, `heritage`, `type`, `website` (`:` written `_`). Polygons where the members close into rings (outer minus inner), otherwise lines |
 | `areas.pmtiles` | ODbL 1.0 (© OpenStreetMap contributors) | Vector tiles, layer `areas`, zooms 0 to 14, every outline |
 
-The outlines are **as mapped by OpenStreetMap contributors, not UNESCO's official boundaries**. Tiles stop at 85.05 degrees
+The outlines are **as mapped by OpenStreetMap contributors, not UNESCO's official boundaries**. Routes and route
+networks (OSM `type=route`, `superroute`, `network`) are kept only when they carry a World Heritage ID (`ref:whc`): OSM tags
+whole networks, such as the Way of St James across France, where UNESCO lists only sections. Tiles stop at 85.05 degrees
 latitude; true coordinates are in the Parquet files. `index.json` holds the counts; `manifest.json` every file's sha256.
 
 ## Sources and terms

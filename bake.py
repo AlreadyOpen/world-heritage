@@ -8,7 +8,7 @@
 index.json counts the rows of each file, and the features at the deepest zoom of each tile set.
 UNESCO's own lists, KML, XLS and ArcGIS services are never fetched: their terms forbid redistribution without permission.
 Usage: python3 bake.py"""
-import datetime, json, os, shutil, subprocess, time, urllib.parse, urllib.request
+import datetime, json, os, shutil, subprocess, time, urllib.error, urllib.parse, urllib.request
 import duckdb
 import shapely
 from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon, mapping
@@ -42,13 +42,19 @@ def fetch(url, data, accept='application/json', tries=3):
                 return json.loads(r.read())
         except Exception as e:                                         # HTML error pages fail json.loads too
             print(f'{url}: {e}', flush=True)
+            if isinstance(e, urllib.error.URLError) and not isinstance(e, urllib.error.HTTPError):
+                raise ConnectionError(f'{url}: unreachable') from e    # no route (GitHub runners to overpass-api.de): don't wait on it
             if i < tries - 1: time.sleep(30 * (i + 1))
     raise RuntimeError(f'{url}: no JSON after {tries} tries')
 
 
+DEAD = set()                                                          # servers unreachable from here, skipped for the rest of the run
+
+
 def overpass(q):
-    for s in OVERPASS:
+    for s in [s for s in OVERPASS if s not in DEAD]:
         try: return fetch(s, {'data': f'[out:json][timeout:900];{q}'}, tries=2)['elements']   # an error page has no 'elements'
+        except ConnectionError as e: DEAD.add(s); print(f'overpass: {e}, skipped from now on', flush=True)
         except Exception as e: print(f'overpass: {e}', flush=True)
     raise RuntimeError('every Overpass server failed')
 
@@ -132,7 +138,7 @@ def one_kind(g):
 
 
 def geom_batch(t, ids, tmp, strict=True):
-    """`out tags geom` for these ids; kept in tmp so a rerun after a failure resumes (tmp is removed when the bake ends).
+    """`out tags geom` for these ids; kept in tmp (inside the CI cache) so a rerun after a failure or timeout resumes (tmp is removed when the bake ends).
     A batch every server refuses is split in two, down to single elements (the servers 502/504 under load)"""
     p = os.path.join(tmp, f'osm-{t}-{ids[0]}-{len(ids)}.json')
     if os.path.exists(p): return json.load(open(p))
@@ -200,7 +206,7 @@ def tiles(geojsonl, out, layer, maxzoom, extra=()):
 def main():
     os.makedirs(sources.CACHE, exist_ok=True); os.makedirs(sources.OUT, exist_ok=True)
     o = lambda f: os.path.join(sources.OUT, f)
-    tmp = os.path.join(sources.DATA, 'tmp'); os.makedirs(tmp, exist_ok=True)
+    tmp = os.path.join(sources.CACHE, 'tmp'); os.makedirs(tmp, exist_ok=True)     # in the CI cache: a run that times out resumes
     con = duckdb.connect(); con.execute('INSTALL spatial; LOAD spatial')
 
     S = sites(); counts = {'sites': len(S), 'sites_located': sum(s['lon'] is not None for s in S),

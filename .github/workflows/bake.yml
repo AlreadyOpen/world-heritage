@@ -18,7 +18,7 @@ concurrency:
 jobs:
   bake:
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 360          # GitHub's maximum: Overpass from GitHub runners is slow; a timed-out run resumes from the cache
     env:
       PIPELINE_DATA: ${{ github.workspace }}/data
     steps:

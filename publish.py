@@ -8,7 +8,7 @@ import json, os
 from huggingface_hub import HfApi, batch_bucket_files, create_bucket
 import manifest, sources
 
-REPO = 'alreadyopen/world-heritage'
+REPO = 'milleleaf/world-heritage'
 DATASET_FILES = ['index.json', 'sites.parquet', 'sites.pmtiles', 'areas.parquet', 'areas.pmtiles']
 BUCKET_FILES = ['index.json', 'sites.pmtiles', 'areas.pmtiles']                    # the map reads these
 KAGGLE = ('helenkwok/world-heritage', 'AlreadyOpen: world heritage')            # mirrored by kaggle_mirror.py (title 6-50 chars)

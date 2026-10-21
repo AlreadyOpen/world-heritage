@@ -12,7 +12,7 @@ tags:
 # World heritage
 
 World Heritage sites from open data only, rebuilt weekly by AlreadyOpen
-([AlreadyOpen/world-heritage](https://github.com/AlreadyOpen/world-heritage)). Two sources under two licences, kept in
+([AlreadyOpen/world-heritage](https://github.com/milleleaf/world-heritage)). Two sources under two licences, kept in
 separate files and never merged.
 
 | File | Licence | Holds |

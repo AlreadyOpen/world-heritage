@@ -11,8 +11,8 @@ tags:
 
 # World heritage
 
-World Heritage sites from open data only, rebuilt weekly by AlreadyOpen
-([AlreadyOpen/world-heritage](https://github.com/milleleaf/world-heritage)). Two sources under two licences, kept in
+World Heritage sites from open data only, rebuilt weekly by Milleleaf
+([milleleaf/world-heritage](https://github.com/milleleaf/world-heritage)). Two sources under two licences, kept in
 separate files and never merged.
 
 | File | Licence | Holds |
@@ -33,5 +33,5 @@ latitude; true coordinates are in the Parquet files. `index.json` holds the coun
 - Outlines: © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/).
   `areas.*` is a derivative database under the ODbL: share-alike applies to it.
 
-Published by AlreadyOpen. Not affiliated with or endorsed by UNESCO or the World Heritage Centre; no UNESCO data is used.
+Published by Milleleaf. Not affiliated with or endorsed by UNESCO or the World Heritage Centre; no UNESCO data is used.
 Provided as is, with no warranty.

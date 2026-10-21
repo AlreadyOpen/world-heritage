@@ -15,7 +15,7 @@ from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Pol
 from shapely.ops import polygonize, unary_union
 import sources
 
-UA = {'User-Agent': 'AlreadyOpen world-heritage (https://github.com/milleleaf/world-heritage)'}
+UA = {'User-Agent': 'Milleleaf world-heritage (https://github.com/milleleaf/world-heritage)'}
 SPARQL = 'https://query.wikidata.org/sparql'
 SITES_Q = '''SELECT ?item ?whc ?coord ?en ?fr ?iso3 ?year WHERE { ?item wdt:P757 ?whc . OPTIONAL{?item wdt:P625 ?coord}
  OPTIONAL{?item rdfs:label ?en FILTER(LANG(?en)="en")} OPTIONAL{?item rdfs:label ?fr FILTER(LANG(?fr)="fr")}

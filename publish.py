@@ -11,7 +11,7 @@ import manifest, sources
 REPO = 'milleleaf/world-heritage'
 DATASET_FILES = ['index.json', 'sites.parquet', 'sites.pmtiles', 'areas.parquet', 'areas.pmtiles']
 BUCKET_FILES = ['index.json', 'sites.pmtiles', 'areas.pmtiles']                    # the map reads these
-KAGGLE = ('helenkwok/world-heritage', 'AlreadyOpen: world heritage')            # mirrored by kaggle_mirror.py (title 6-50 chars)
+KAGGLE = ('helenkwok/world-heritage', 'Milleleaf: world heritage')            # mirrored by kaggle_mirror.py (title 6-50 chars)
 
 def main():
     o = lambda f: os.path.join(sources.OUT, f); idx = json.load(open(o('index.json')))

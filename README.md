@@ -2,7 +2,7 @@
 
 World Heritage sites from open data only: points from [Wikidata](https://www.wikidata.org/) (CC0) and outlines from
 [OpenStreetMap](https://www.openstreetmap.org/copyright) (ODbL), as GeoParquet and vector tiles, one licence per file. Meant
-to be published weekly to Hugging Face (`alreadyopen/world-heritage`, dataset and bucket) and mirrored to Kaggle
+to be published weekly to Hugging Face (`milleleaf/world-heritage`, dataset and bucket) and mirrored to Kaggle
 (`helenkwok/world-heritage`). The files are listed in `hf/README.md`.
 
     python3 bake.py          # data/out/: Parquet, PMTiles + index.json (needs tippecanoe 2.79)
